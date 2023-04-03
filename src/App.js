@@ -2,11 +2,21 @@ import React, { useEffect, useState } from "react";
 import DB from "./assets/db.json";
 import { AddList, List, Tasks, Badge } from "./components";
 import axios from "axios";
+import {
+  Route,
+  Routes,
+  useNavigate,
+  useLocation,
+  matchPath,
+} from "react-router-dom";
 
 function App() {
   const [colors, setColors] = useState(null);
   const [activeItem, setActiveItem] = useState(null);
   const [lists, setLists] = React.useState([]);
+
+  let navigate = useNavigate();
+  let location = useLocation();
   useEffect(() => {
     axios
       .get("http://localhost:3001/lists?_expand=color&_embed=tasks")
@@ -32,6 +42,47 @@ function App() {
     });
     setLists(newList);
   };
+  const onEditTask = (listId, taskObj) => {
+    const newTaskText = window.prompt("Текст задачи", taskObj.text);
+    if (!newTaskText) {
+      return;
+    }
+
+    const newList = lists.map((list) => {
+      if (list.id === listId) {
+        list.tasks = list.tasks.map((task) => {
+          if (task.id === taskObj.id) {
+            task.text = newTaskText;
+          }
+          return task;
+        });
+      }
+      return list;
+    });
+    setLists(newList);
+    axios
+      .patch("http://localhost:3001/tasks/" + taskObj.id, {
+        text: newTaskText,
+      })
+      .catch(() => {
+        alert("Не удалось обновить задачу");
+      });
+  };
+  const onRemoveTask = (listId, taskId) => {
+    if (window.confirm("Вы действительно хотите удалить задачу?")) {
+      const newList = lists.map((item) => {
+        if (item.id === listId) {
+          item.tasks = item.tasks.filter((task) => task.id !== taskId);
+        }
+        return item;
+      });
+      setLists(newList);
+      axios.delete("http://localhost:3001/tasks/" + taskId).catch(() => {
+        alert("Не удалось удалить задачу");
+      });
+    }
+  };
+
   const onEditListTitle = (id, title) => {
     const newList = lists.map((item) => {
       if (item.id === id) {
@@ -41,11 +92,22 @@ function App() {
     });
     setLists(newList);
   };
+  useEffect(() => {
+    const listId = location.pathname.split("lists/")[1];
+    if (lists) {
+      const list = lists.find((list) => list.id === Number(listId));
+      setActiveItem(list);
+    }
+  }, [lists, location.pathname]);
 
   return (
     <div className="todo">
       <div className="todo__sidebar">
         <List
+          keу={lists.id}
+          onClickItem={(list) => {
+            navigate(`/`);
+          }}
           items={[
             {
               active: true,
@@ -73,8 +135,8 @@ function App() {
             console.log(id);
           }}
           isRemovable
-          onClickItem={(item) => {
-            setActiveItem(item);
+          onClickItem={(list) => {
+            navigate(`/lists/${list.id}`);
           }}
           activeItem={activeItem}
         ></List>
@@ -85,15 +147,42 @@ function App() {
         ></AddList>
       </div>
       <div className="todo__tasks">
-        {lists && activeItem && (
-          <Tasks
-            list={activeItem}
-            onEditTitle={onEditListTitle}
-            onAddTask={onAddTask}
-          >
-            {" "}
-          </Tasks>
-        )}
+        <Routes>
+          <Route
+            exact
+            path="/"
+            element={
+              lists &&
+              lists?.map((list) => (
+                <Tasks
+                  list={list}
+                  onEditTitle={onEditListTitle}
+                  onAddTask={onAddTask}
+                  withoutEmpty
+                  onRemoveTask={onRemoveTask}
+                  onEditTask={onEditTask}
+                ></Tasks>
+              ))
+            }
+          ></Route>
+          <Route
+            path="/lists/:id"
+            element={
+              <>
+                {lists && activeItem && (
+                  <Tasks
+                    onRemoveTask={onRemoveTask}
+                    key={lists.id}
+                    list={activeItem}
+                    onEditTitle={onEditListTitle}
+                    onAddTask={onAddTask}
+                    withoutEmpty
+                  ></Tasks>
+                )}
+              </>
+            }
+          ></Route>
+        </Routes>
       </div>
     </div>
   );
