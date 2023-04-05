@@ -6,6 +6,7 @@ import Badge from "../Badge";
 import removeSvg from "../../assets/img/remove.svg";
 
 const List = ({
+  list,
   items,
   isRemovable,
   onClick,

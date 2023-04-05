@@ -155,6 +155,7 @@ function App() {
               lists &&
               lists?.map((list) => (
                 <Tasks
+                  key={list.id}
                   list={list}
                   onEditTitle={onEditListTitle}
                   onAddTask={onAddTask}
@@ -176,6 +177,7 @@ function App() {
                     list={activeItem}
                     onEditTitle={onEditListTitle}
                     onAddTask={onAddTask}
+                    onEditTask={onEditTask}
                     withoutEmpty
                   ></Tasks>
                 )}

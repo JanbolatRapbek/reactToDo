@@ -10,7 +10,7 @@ const Task = ({
   task,
 }) => {
   return (
-    <div key={task.id} className="tasks__items-row">
+    <div className="tasks__items-row">
       <div className="checkbox">
         <input id={`task-${task.id}`} type="checkbox"></input>
         <label htmlFor={`task-${task.id}`}>
@@ -31,9 +31,9 @@ const Task = ({
           </svg>{" "}
         </label>
       </div>
-      <input className="inputTask" readOnly value={task?.text}></input>
+      <p>{task?.text}</p>
       <div className="tasks__items-row-actions">
-        <div onClick={() => onEdit(list.id, { id, text })}>
+        <div onClick={() => onEdit(list.id, task.id, { id, text })}>
           <svg
             width="15"
             height="15"
@@ -47,7 +47,7 @@ const Task = ({
             />
           </svg>
         </div>
-        <div onClick={() => onRemove(list.id, id)}>
+        <div onClick={() => onRemove(list.id, task.id, id)}>
           <svg
             width="11"
             height="11"
