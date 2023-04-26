@@ -79,22 +79,16 @@
       "id": 17
     },
     {
-      "listId": 4,
-      "text": "",
-      "completed": false,
-      "id": 18
-    },
-    {
-      "listId": 4,
-      "text": "",
-      "completed": false,
-      "id": 21
-    },
-    {
       "listId": 3,
       "text": "tyjtyj",
       "completed": false,
       "id": 29
+    },
+    {
+      "listId": 2,
+      "text": "",
+      "completed": false,
+      "id": 30
     }
   ],
   "colors": [
